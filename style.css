@@ -1,0 +1,62 @@
+body {
+  margin: 0;
+  background: #222;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  overflow: hidden;
+}
+
+#title {
+  margin: 10px;
+}
+
+#gameCanvas {
+  display: block;
+  margin: 0 auto;
+  background: #333;
+  border: 2px solid #fff;
+  touch-action: none; /* prevent scrolling while touching */
+}
+
+#controls {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+#joystick {
+  width: 80px;
+  height: 80px;
+  background: rgba(255,255,255,0.1);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  position: relative;
+  touch-action: none;
+}
+
+#fireBtn {
+  padding: 20px;
+  font-size: 18px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+}
+
+#gameOver {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.9);
+  padding: 20px;
+  border: 2px solid white;
+}
+
+.hidden {
+  display: none;
+}
