@@ -1,0 +1,65 @@
+body {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  background: #1e1e1e;
+  color: white;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+h1 {
+  margin: 10px 0;
+}
+
+#gameCanvas {
+  background: #2c2c2c;
+  display: block;
+  margin: 0 auto;
+  border: 2px solid white;
+  width: 90vw;
+  height: 60vh;
+  touch-action: none;
+}
+
+#controls {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+button {
+  width: 60px;
+  height: 60px;
+  font-size: 20px;
+  border: none;
+  border-radius: 50%;
+  background: #444;
+  color: white;
+  opacity: 0.8;
+}
+
+button:active {
+  background: #666;
+}
+
+/* Restart button styling */
+#restartBtn {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  padding: 15px 30px;
+  border-radius: 10px;
+  background: limegreen;
+  color: black;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
