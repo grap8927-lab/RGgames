@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nightmare Pinball 3D</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="hud">
+    <h1>🎃 Nightmare Pinball 👻</h1>
+    <div class="scoreboard">
+      <span id="score">Score: 0</span>
+      <span id="balls">Balls: 3</span>
+    </div>
+  </div>
+
+  <div id="gameContainer"></div>
+
+  <div class="controls">
+    <button id="leftBtn">⟸</button>
+    <button id="rightBtn">⟹</button>
+  </div>
+
+  <!-- Three.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
