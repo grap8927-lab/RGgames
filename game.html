@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Battle Royale Prototype (Mobile)</title>
+  <style>
+    body { margin:0; background:#222; overflow:hidden; touch-action:none; }
+    canvas { display:block; margin:auto; background:#333; touch-action:none; }
+
+    /* Joystick + Shoot button */
+    #joystick {
+      position: fixed;
+      bottom: 80px; left: 80px;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid #aaa;
+      touch-action: none;
+    }
+    #joystickHandle {
+      position: absolute;
+      top: 35px; left: 35px;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: rgba(0,255,255,0.7);
+    }
+    #shootBtn {
+      position: fixed;
+      bottom: 100px; right: 80px;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(255,0,0,0.7);
+      border: 2px solid #fff;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+<div id="joystick"><div id="joystickHandle"></div></div>
+<div id="shootBtn"></div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+// Player
+let player = { x: canvas.width/2, y: canvas.height/2, size: 20, speed: 3, health: 100 };
+
+// Bullets
+let bullets = [];
+
+// Enemies
+let enemies = [];
+for (let i=0;i<5;i++) {
+  enemies.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, size:20, health:50 });
+}
+
+// Safe zone
+let safeZone = { x: canvas.width/2, y: canvas.height/2, radius: Math.min(canvas.width, canvas.height)/2 };
+
+// Virtual joystick
+let joystick = document.getElementById("joystick");
+let joystickHandle = document.getElementById("joystickHandle");
+let shootBtn = document.getElementById("shootBtn");
+let joyCenter = { x: joystick.offsetLeft+50, y: joystick.offsetTop+50 };
+let joyInput = { x:0, y:0 };
+
+joystick.addEventListener("touchmove", e => {
+  let t = e.touches[0];
+  let dx = t.clientX - joyCenter.x;
+  let dy = t.clientY - joyCenter.y;
+  let dist = Math.min(Math.hypot(dx,dy),40);
+  let angle = Math.atan2(dy,dx);
+  joyInput.x = Math.cos(angle) * (dist/40);
+  joyInput.y = Math.sin(angle) * (dist/40);
+  joystickHandle.style.left = (35 + joyInput.x*40) + "px";
+  joystickHandle.style.top = (35 + joyInput.y*40) + "px";
+});
+joystick.addEventListener("touchend", e => {
+  joyInput.x = 0; joyInput.y = 0;
+  joystickHandle.style.left = "35px";
+  joystickHandle.style.top = "35px";
+});
+
+// Shooting (touch button)
+shootBtn.addEventListener("touchstart", e => {
+  shoot();
+});
+
+function shoot() {
+  let angle = Math.atan2(joyInput.y, joyInput.x);
+  if (joyInput.x === 0 && joyInput.y === 0) angle = 0; // default direction
+  bullets.push({
+    x: player.x, y: player.y,
+    dx: Math.cos(angle)*6, dy: Math.sin(angle)*6
+  });
+}
+
+function update() {
+  // Player movement
+  player.x += joyInput.x * player.speed;
+  player.y += joyInput.y * player.speed;
+
+  // Keep player inside screen
+  player.x = Math.max(0, Math.min(canvas.width, player.x));
+  player.y = Math.max(0, Math.min(canvas.height, player.y));
+
+  // Bullets move
+  bullets.forEach(b => { b.x += b.dx; b.y += b.dy; });
+
+  // Enemy AI
+  enemies.forEach(e => {
+    let dx = player.x - e.x;
+    let dy = player.y - e.y;
+    let dist = Math.hypot(dx,dy);
+    if (dist > 0) {
+      e.x += dx/dist * 1.2;
+      e.y += dy/dist * 1.2;
+    }
+  });
+
+  // Bullet collision
+  bullets.forEach((b, bi) => {
+    enemies.forEach((e, ei) => {
+      if (Math.hypot(b.x-e.x, b.y-e.y) < e.size) {
+        e.health -= 20;
+        bullets.splice(bi,1);
+      }
+    });
+  });
+
+  // Remove dead enemies
+  enemies = enemies.filter(e => e.health > 0);
+
+  // Safe zone shrinks
+  if (safeZone.radius > 60) safeZone.radius -= 0.02;
+
+  // Damage if outside safe zone
+  let dist = Math.hypot(player.x - safeZone.x, player.y - safeZone.y);
+  if (dist > safeZone.radius) player.health -= 0.05;
+
+  // Game over
+  if (player.health <= 0) {
+    alert("Game Over!");
+    document.location.reload();
+  }
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Safe zone
+  ctx.beginPath();
+  ctx.arc(safeZone.x,safeZone.y,safeZone.radius,0,Math.PI*2);
+  ctx.strokeStyle="lime";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Player
+  ctx.fillStyle="cyan";
+  ctx.fillRect(player.x-10, player.y-10, player.size, player.size);
+
+  // Bullets
+  ctx.fillStyle="yellow";
+  bullets.forEach(b => ctx.fillRect(b.x-3,b.y-3,6,6));
+
+  // Enemies
+  ctx.fillStyle="red";
+  enemies.forEach(e => ctx.fillRect(e.x-10,e.y-10,e.size,e.size));
+
+  // HUD
+  ctx.fillStyle="white";
+  ctx.font="16px Arial";
+  ctx.fillText("Health: "+Math.floor(player.health),10,20);
+  ctx.fillText("Enemies: "+enemies.length,10,40);
+}
+
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
